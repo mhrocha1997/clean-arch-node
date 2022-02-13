@@ -12,7 +12,7 @@ export class SignUpController implements Controller {
 
   handle (httpRequest: HttpRequest): HttpResponse {
     try {
-      let response: HttpResponse = {
+      const response: HttpResponse = {
         statusCode: 0,
         body: null
       }
@@ -20,12 +20,15 @@ export class SignUpController implements Controller {
 
       for (const field of requiredFields) {
         if (!httpRequest.body[field]) {
-          response = badRequest(new MissingParamError(field))
+          return badRequest(new MissingParamError(field))
         }
+      }
+      if (httpRequest.body.password !== httpRequest.body.passwordConfirmation) {
+        return badRequest(new InvalidParamError('passwordConfirmation'))
       }
       const isValid = this.emailValidator.isValid(httpRequest.body.email)
       if (!isValid) {
-        response = badRequest(new InvalidParamError('email'))
+        return badRequest(new InvalidParamError('email'))
       }
       return response
     } catch (error) {
